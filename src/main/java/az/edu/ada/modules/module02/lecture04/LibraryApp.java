@@ -3,39 +3,28 @@ package az.edu.ada.modules.module02.lecture04;
 public class LibraryApp {
 
     public void saveBook() {
-        // fetch from db: 1
+        DBConnection connection = DBConnection.getInstance();
 
-        // do internal process
+        // fetch from db
+        System.out.println("Fetching book...");
 
-        // save into db: 2
+        // process
+        System.out.println("Processing...");
+
+        // save
+        System.out.println("Saving...");
     }
 
     public static void main(String[] args) {
+
         DBConnection connection1 = DBConnection.getInstance();
 
-        connection1 = null; //???
+        connection1 = null; // doesn't destroy singleton
 
         System.out.println("Did some work");
 
         DBConnection connection2 = DBConnection.getInstance();
-        connection2.setSmth(1);
 
         System.out.println("Did more work");
-    }
-
-    public class DBConnection {
-
-        private static final DBConnection INSTANCE = new DBConnection();
-
-        private DBConnection() {
-            System.out.println("Connected to the DB!");
-        }
-
-        public static DBConnection getInstance() {
-            if (INSTANCE == null) {
-                INSTANCE = new DBConnection();
-            }
-            return INSTANCE;
-        }
     }
 }
