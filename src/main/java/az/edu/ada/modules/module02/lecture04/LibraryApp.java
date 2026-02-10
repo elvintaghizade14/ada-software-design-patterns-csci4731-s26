@@ -11,31 +11,31 @@ public class LibraryApp {
     }
 
     public static void main(String[] args) {
-        DBConnection connection1 = DBConnection.getInstance();
+        // DBConnection connection1 = DBConnection.getInstance();
 
-        connection1 = null; //???
+        // connection1 = null; //???
 
         System.out.println("Did some work");
 
-        DBConnection connection2 = DBConnection.getInstance();
-        connection2.setSmth(1);
+        // DBConnection connection2 = DBConnection.getInstance();
+        // connection2.setSmth(1);
 
         System.out.println("Did more work");
     }
 
     public class DBConnection {
 
-        private static final DBConnection INSTANCE = new DBConnection();
-
-        private DBConnection() {
-            System.out.println("Connected to the DB!");
-        }
-
-        public static DBConnection getInstance() {
-            if (INSTANCE == null) {
-                INSTANCE = new DBConnection();
-            }
-            return INSTANCE;
-        }
+//        private static final DBConnection INSTANCE = new DBConnection();
+//
+//        private DBConnection() {
+//            System.out.println("Connected to the DB!");
+//        }
+//
+//        public static DBConnection getInstance() {
+//            if (INSTANCE == null) {
+//                INSTANCE = new DBConnection();
+//            }
+//            return INSTANCE;
+//        }
     }
 }
