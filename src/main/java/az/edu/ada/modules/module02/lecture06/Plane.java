@@ -1,9 +1,8 @@
 package az.edu.ada.modules.module02.lecture06;
 
-public class Truck implements Transport {
+public class Plane implements Transport {
     @Override
     public void deliver() {
-        System.out.println("Delivering by Truck");
+        System.out.println("Delivering by Plane");
     }
-
 }
