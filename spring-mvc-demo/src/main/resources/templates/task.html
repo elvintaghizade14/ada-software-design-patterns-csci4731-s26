@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vanilla JavaScript MVC Demo</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: #f4f4f9;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+        }
+        .app-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h1 { margin-top: 0; font-size: 1.5rem; color: #333; }
+        .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        input[type="text"] { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px 15px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .task-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
+        .delete-btn { background: #dc3545; padding: 5px 10px; font-size: 0.8rem; }
+        .delete-btn:hover { background: #c82333; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <h1>MVC Task Manager</h1>
+    <div class="input-group">
+        <input type="text" id="task-input" placeholder="Enter a new task...">
+        <button id="add-button">Add</button>
+    </div>
+    <div id="task-list">
+    </div>
+</div>
+
+<script>
+    // ==========================================
+    // 1. THE MODEL (The Kitchen / The Data)
+    // Manages the data and business rules. Doesn't know about HTML.
+    // ==========================================
+    class TaskModel {
+        constructor() {
+            this.tasks = [];
+            this.onTaskListChanged = null; // Callback to notify the View
+        }
+
+        addTask(taskText) {
+            if (taskText.trim() === '') return;
+            const newTask = { id: Date.now(), text: taskText };
+            this.tasks.push(newTask);
+
+            // Notify the View that data has changed
+            if (this.onTaskListChanged) this.onTaskListChanged(this.tasks);
+        }
+
+        deleteTask(id) {
+            this.tasks = this.tasks.filter(task => task.id !== id);
+
+            // Notify the View that data has changed
+            if (this.onTaskListChanged) this.onTaskListChanged(this.tasks);
+        }
+    }
+
+    // ==========================================
+    // 2. THE VIEW (The Presentation / The UI)
+    // Manages the DOM. Doesn't know about business logic.
+    // ==========================================
+    class TaskView {
+        constructor() {
+            this.input = document.getElementById('task-input');
+            this.addButton = document.getElementById('add-button');
+            this.taskList = document.getElementById('task-list');
+        }
+
+        // The View attaches listeners, but passes the actual work to the Controller
+        bindAddTask(handler) {
+            this.addButton.addEventListener('click', () => {
+                handler(this.input.value);
+                this.input.value = ''; // Clear input after clicking
+            });
+        }
+
+        bindDeleteTask(handler) {
+            this.taskList.addEventListener('click', event => {
+                if (event.target.className.includes('delete-btn')) {
+                    const id = parseInt(event.target.parentElement.dataset.id);
+                    handler(id);
+                }
+            });
+        }
+
+        // The Controller calls this when the Model changes
+        displayTasks(tasks) {
+            this.taskList.innerHTML = ''; // Clear current list
+
+            if (tasks.length === 0) {
+                this.taskList.innerHTML = '<p style="color: #888; text-align: center;">No tasks yet!</p>';
+                return;
+            }
+
+            tasks.forEach(task => {
+                const div = document.createElement('div');
+                div.className = 'task-item';
+                div.dataset.id = task.id;
+                div.innerHTML = `
+                        <span>${task.text}</span>
+                        <button class="delete-btn">Delete</button>
+                    `;
+                this.taskList.appendChild(div);
+            });
+        }
+    }
+
+    // ==========================================
+    // 3. THE CONTROLLER (The Waiter / The Middleman)
+    // Links the user input to the Model, and the Model's data to the View.
+    // ==========================================
+    class TaskController {
+        constructor(model, view) {
+            this.model = model;
+            this.view = view;
+
+            // 1. Tell the Model what to do when its data changes (Update the View)
+            this.model.onTaskListChanged = this.view.displayTasks.bind(this.view);
+
+            // 2. Tell the View what to do when the user clicks buttons (Call Controller methods)
+            this.view.bindAddTask(this.handleAddTask.bind(this));
+            this.view.bindDeleteTask(this.handleDeleteTask.bind(this));
+
+            // 3. Initial render
+            this.view.displayTasks(this.model.tasks);
+        }
+
+        // Controller methods that talk to the Model
+        handleAddTask(taskText) {
+            this.model.addTask(taskText);
+        }
+
+        handleDeleteTask(id) {
+            this.model.deleteTask(id);
+        }
+    }
+
+    // ==========================================
+    // BOOTSTRAP THE APPLICATION
+    // ==========================================
+    const app = new TaskController(new TaskModel(), new TaskView());
+
+</script>
+</body>
+</html>
